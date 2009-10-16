@@ -1,6 +1,7 @@
 require 'rubygems'
 gem 'tumblr4r', '>= 0.7.2' # requires 0.7.2's photoset support
 require 'tumblr4r'
+require 'sanitize'
 require 'fileutils'
 require 'open-uri'
 require 'logger'
@@ -55,6 +56,9 @@ module Tumblr4r
     end
 
     def trim_title(s, max = 55)
+      # strip html with sanitize
+      s = Sanitize.clean(s) 
+      # shorten if necessary
       if s.length > max
         s = s.slice(0,max).strip + "..."
       end
