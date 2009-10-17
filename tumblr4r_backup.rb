@@ -4,14 +4,13 @@ require 'tumblr4r'
 require 'sanitize'
 require 'fileutils'
 require 'open-uri'
-require 'logger'
 
 module Tumblr4r
 =begin
   Adds a Backup subclass of Tumblr4r's Site class that makes backups 
   of posts as well as images (for photo and regular posts)
 
-  Outputs a Jekyll-inspired YAML formatted plain text files. To substitute 
+  Outputs Jekyll-style, YAML-formatted plain text files. To substitute 
   a different backup method, you'd have to change write_file as well as
   get_existing
 
@@ -186,39 +185,67 @@ module Tumblr4r
       end
     end
 
-    def make_backup(posts)
-      @posts = posts
-      existing = get_existing
-      @posts.each do |p|
-        # if post_id isn't in existing, make backup
-        unless existing.include?(p.post_id)
-          # backup data in a hash, 'bp'
-          bp = {}
-          
-          bp[:myslug] = get_myslug(p)
+    def organize_data(p)
+      bp = {}
+      
+      bp[:myslug] = get_myslug(p)
 
-          bp[:content] = get_content(p)
-          bp[:title] = bp[:content][:title].to_s.gsub('"','\"')
-          bp[:body] = bp[:content][:body]
-          bp[:media] = bp[:content][:media]
+      bp[:content] = get_content(p)
+      bp[:title] = bp[:content][:title].to_s.gsub('"','\"')
+      bp[:body] = bp[:content][:body]
+      bp[:media] = bp[:content][:media]
 
-          bp[:date] = p.date
-          bp[:type] = p.type
-          bp[:link] = p.url_with_slug
-          bp[:post_id] = p.post_id
-         
-          # get any media
-          if bp[:content][:media]
-            get_media(bp)
+      bp[:date] = p.date
+      bp[:type] = p.type
+      bp[:link] = p.url_with_slug
+      bp[:post_id] = p.post_id
+      
+      return bp
+    end
+
+    def get_posts(limit, offset)
+      posts = self.find(:all, :filter => "none", 
+                        :limit => limit, :offset => offset)
+    end
+
+    def make_backup
+      limit = 10
+      offset = 0
+      fetched_all_new = false
+
+      until(fetched_all_new == true):
+
+        posts = get_posts(limit, offset)
+        break if posts.empty?
+
+        existing = get_existing
+        posts.each do |p|
+          # if post_id isn't in existing, make backup
+          if existing.include?(p.post_id)
+            fetched_all_new = true
+          else
+            bp = organize_data(p)
+           
+            # get any media
+            if bp[:content][:media]
+              get_media(bp)
+            end
+
+            # write the file
+            write_file(bp)
+
+            # log the backup
+            @logger.info("Backed up \"#{bp[:title]}\"")
           end
-
-          # write the file
-          write_file(bp)
-
-          # log the backup
-          @logger.info("Backed up \"#{bp[:title]}\"")
         end
+
+        if fetched_all_new == false
+          offset = limit + offset
+          sleep 2
+        end
+        
       end
+
     end
 
   end
