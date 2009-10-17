@@ -31,8 +31,7 @@ module Tumblr4r
   Use like this:
   site = Tumblr4r::Backup.new('blogname.tumblr.com')
   site.backup_path = "/path/to/your/backups"
-  posts = site.find(:all, :filter=>'none')
-  site.make_backup(posts)
+  site.make_backup
 =end
 
   class Backup < Site
@@ -208,8 +207,7 @@ module Tumblr4r
                         :limit => limit, :offset => offset)
     end
 
-    def make_backup
-      limit = 10
+    def make_backup(limit = 20)
       offset = 0
       fetched_all_new = false
 
