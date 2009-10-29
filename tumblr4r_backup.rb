@@ -155,10 +155,10 @@ module Tumblr4r
       # iterate through urls, get the files
       bp[:content][:media].each do |url|
         unless url.empty? 
-          filename = url.slice(/[^\/]+$/)
-          filename = "#{media_dir}/#{filename}"
+          response = open(url)
+          filename = "#{media_dir}/#{response.base_uri.path.slice(/[^\/]+$/)}"
           file = open(filename, 'w')
-          file.write(open(url).read)
+          file.write(response.read)
           file.close
         end
       end
