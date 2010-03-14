@@ -173,7 +173,7 @@ module Tumblr4r
       filecontent << "title: \"#{bp[:title]}\"\n" ##
       filecontent << "type: #{bp[:type]}\n" ##
       filecontent << "date: \"#{bp[:date]}\"\n" ##
-      filecontent << "id: #{bp[:post_id]}\n" ##
+      filecontent << "post-id: #{bp[:post_id]}\n" ##
       filecontent << "link: \"#{bp[:link]}\"\n" ##
       filecontent << "---\n" ##
       filecontent << "#{bp[:body]}\n" ##
