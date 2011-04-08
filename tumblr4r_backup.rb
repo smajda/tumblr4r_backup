@@ -42,7 +42,7 @@ module Tumblr4r
       existing = []
       Dir["#{@backup_path}/*.markdown"].each do |f|
         postmeta = YAML.load_file(f)
-        existing.push(postmeta["id"])
+        existing.push(postmeta["post-id"])
       end
       return existing 
     end
