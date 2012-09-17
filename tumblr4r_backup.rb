@@ -211,7 +211,7 @@ module Tumblr4r
       offset = 0
       fetched_all_new = false
 
-      until(fetched_all_new == true):
+      until(fetched_all_new == true)
 
         posts = get_posts(limit, offset)
         break if posts.empty?
